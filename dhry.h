@@ -345,12 +345,12 @@
  */
 
 /* Compiler and system dependent definitions: */
-#define HZ 800000000
+#define HZ 1000000000
 
-#ifndef TIME
-#undef TIMES
-#define TIMES
-#endif
+// #ifndef TIME
+// #undef TIMES
+// #define TIMES
+// #endif
                 /* Use times(2) time function unless    */
                 /* explicitly defined otherwise         */
 

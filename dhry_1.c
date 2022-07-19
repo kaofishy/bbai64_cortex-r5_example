@@ -140,15 +140,7 @@ runDhrystone ()
   /* Start timer */
   /***************/
  
-#ifdef TIMES
-  Begin_Time = (long) CycleCounterP_getCount32();
-#endif
-#ifdef TIME
-  Begin_Time = time ( (long *) 0);
-#endif
-#ifdef MSC_CLOCK
-  Begin_Time = clock();
-#endif
+ Begin_Time = (long) CycleCounterP_getCount32();
 
   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
   {
@@ -200,15 +192,7 @@ runDhrystone ()
   /* Stop timer */
   /**************/
   
-#ifdef TIMES
   End_Time = (long) CycleCounterP_getCount32();
-#endif
-#ifdef TIME
-  End_Time = time ( (long *) 0);
-#endif
-#ifdef MSC_CLOCK
-  End_Time = clock();
-#endif
 
   printf ("Execution ends\n");
   printf ("\n");
@@ -273,16 +257,12 @@ runDhrystone ()
   // }
   // else
   {
-#ifdef TIME
-    Microseconds = (float) User_Time * Mic_secs_Per_Second 
-                        / (float) Number_Of_Runs;
-    Dhrystones_Per_Second = (float) Number_Of_Runs / (float) User_Time;
-#else
+
     Microseconds = (float) User_Time * Mic_secs_Per_Second 
                         / ((float) HZ * ((float) Number_Of_Runs));
     Dhrystones_Per_Second = ((float) HZ * (float) Number_Of_Runs)
                         / (float) User_Time;
-#endif
+    
     printf ("Microseconds for one run through Dhrystone: ");
     printf ("%f \n", Microseconds);
     // printf ("%d \n", (int)Microseconds);

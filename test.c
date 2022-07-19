@@ -15,7 +15,7 @@ MpuP_RegionConfig gMpuRegionConfig[3] = {
     // MSRAM region
     {
         .baseAddr = 0x70000000u,
-        .size = MpuP_RegionSize_2M,
+        .size = MpuP_RegionSize_8M,
         .attrs = {
             .isEnable = 1,
             .isCacheable = 1,
@@ -40,7 +40,7 @@ MpuP_RegionConfig gMpuRegionConfig[3] = {
     },
 };
 
-// NOTE: R5FSS implmentation defaults to ARM at reset so these must all be ARM instead of Thumb
+// NOTE: R5FSS defaults to ARM at reset so these must all be ARM instead of Thumb
 
 void Reset_Handler(void) __attribute__((naked, section(".boot.reset"), target("arm")));
 void Default_Handler(void) __attribute__((naked, section(".boot.handler"), target("arm")));
@@ -72,7 +72,7 @@ void Reset_Handler()
 {
     asm volatile(
         // initialize stack
-        "LDR SP, =__stack \n"
+        "ldr sp, =__stack \n"
 
         // disable interrupts
         "mrs r0, cpsr \n"

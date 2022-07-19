@@ -1,12 +1,15 @@
 src = $(wildcard r5/*.S) \
-      $(wildcard r5/*.c)
+      $(wildcard r5/*.c) \
+	  test.c dhry_1.c dhry_2.c
 cflags = -fno-exceptions -mcpu=cortex-r5 -marm -mfloat-abi=hard -O3 -specs=nosys.specs -I r5 -T gcc.ld
 
 bbai64_ip = 192.168.0.122
 skam64x_ip = 192.168.0.151
+clean:
+	rm test.elf test.lst
 
 test.elf: $(src)
-	arm-none-eabi-gcc $(cflags) -o test.elf $(src) test.c dhry_1.c dhry_2.c
+	arm-none-eabi-gcc $(cflags) -o test.elf $(src)
 	arm-none-eabi-size test.elf
 	arm-none-eabi-objdump -xd test.elf > test.lst
 	# sudo cp test.elf /lib/firmware/
