@@ -11,6 +11,8 @@
 MEMORY
 {
   TCMA (rwx) : ORIGIN = 0, LENGTH = 0x8000
+  TCMB (rwx) : ORIGIN = 0x41010000, LENGTH = 0x8000
+  /* MSRAM (rwx) : ORIGIN = 0x70000000, LENGTH = 0x40000 */
   DDR_0 (rwx) : ORIGIN = __DDR_START__ + 0x100000, LENGTH = 0x1000
   DDR_1 (rwx) : ORIGIN = __DDR_START__ + 0x101000, LENGTH = 0xEFF000
 }
@@ -45,12 +47,32 @@ MEMORY
  *   __StackTop
  *   __stack
  */
-
+ENTRY("vectors")
 SECTIONS
 {
+	.boot :
+	{
+		KEEP(*(.vector))
+		*(.boot*)
+		*(.text.mpu*)
+		*(.text.cache*)
+		*(.text.boot*)
+		*(.text.hwi*)
+	} > TCMA
+
+	.resource_table :
+	{
+		*(.resource_table*)
+	} > DDR_0
+
+	.log_shared_mem :
+	{
+		*(.log_shared_mem*)
+	} > DDR_1
+	
 	.text :
 	{
-		KEEP(*(.isr_vector))
+		
 		*(.text*)
 
 		KEEP(*(.init))
@@ -73,18 +95,18 @@ SECTIONS
 		*(.rodata*)
 
 		KEEP(*(.eh_frame*))
-	} > TCMA
+	} > DDR_1
 
 	.ARM.extab : 
 	{
 		*(.ARM.extab* .gnu.linkonce.armextab.*)
-	} > TCMA
+	} > DDR_1
 
 	__exidx_start = .;
 	.ARM.exidx :
 	{
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-	} > TCMA
+	} > DDR_1
 	__exidx_end = .;
 
 	/* To copy multiple ROM to RAM sections,
@@ -158,7 +180,7 @@ SECTIONS
 		/* All data end */
 		__data_end__ = .;
 
-	} > TCMA
+	} > DDR_1
 
 	.bss :
 	{
@@ -168,7 +190,9 @@ SECTIONS
 		*(COMMON)
 		. = ALIGN(4);
 		__bss_end__ = .;
-	} > TCMA
+	} > DDR_1
+
+	
 	
 	.heap (COPY):
 	{
@@ -176,7 +200,7 @@ SECTIONS
 		PROVIDE(end = .);
 		*(.heap*)
 		__HeapLimit = .;
-	} > TCMA
+	} > DDR_1
 
 	/* .stack_dummy section doesn't contains any symbols. It is only
 	 * used for linker to calculate size of stack sections, and assign
@@ -184,24 +208,14 @@ SECTIONS
 	.stack_dummy (COPY):
 	{
 		*(.stack*)
-	} > TCMA
+	} > DDR_1
 
 	/* Set stack top to end of RAM, and stack limit move down by
 	 * size of stack_dummy section */
-	__StackTop = ORIGIN(TCMA) + LENGTH(TCMA);
+	__StackTop = ORIGIN(DDR_1) + LENGTH(DDR_1);
 	__StackLimit = __StackTop - SIZEOF(.stack_dummy);
 	PROVIDE(__stack = __StackTop);
 	
 	/* Check if data + heap + stack exceeds RAM limit */
 	ASSERT(__StackLimit >= __HeapLimit, "region TCMA overflowed with stack")
-
-	.resource_table :
-	{
-		*(.resource_table*)
-	} > DDR_0
-
-	.log_shared_mem :
-	{
-		*(.log_shared_mem*)
-	} > DDR_1
 }
